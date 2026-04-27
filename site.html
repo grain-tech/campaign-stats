@@ -14,12 +14,12 @@
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
     :root {
-      --bg:#f5f3f0; --card:#ffffff; --border:#e5e2dd;
-      --text:#1a1a1a; --text-secondary:#6b6560; --text-muted:#9a9590;
-      --yellow:#fecc07; --yellow-bg:#fef9e7;
-      --green:#4caf50; --green-dark:#2e7d32;
-      --red:#e53935; --orange:#fb8c00; --purple:#ab47bc; --blue:#42a5f5;
-      --grey-line:#c5c0ba; --radius:8px;
+      --bg:#FFFCF7; --card:#FBF7F3; --border:#EAE6E1;
+      --text:#1A1A1A; --text-secondary:#9A9691; --text-muted:#9A9691;
+      --yellow:#FECC07; --yellow-bg:#FFF6DD;
+      --green:#31AA88; --green-dark:#31AA88;
+      --red:#FF2E2E; --orange:#F5A623; --purple:#9B59B6; --blue:#5DADE2;
+      --grey-line:#E0DCD7; --radius:8px;
     }
 
     body { font-family:'Funkis A',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; -webkit-font-smoothing:antialiased; }
@@ -112,7 +112,7 @@
     .bar-row { display:grid; grid-template-columns:120px 1fr 40px; align-items:center; gap:0.6rem; margin-bottom:0.55rem; }
     .bar-row:last-child { margin-bottom:0; }
     .bar-label { font-size:0.8rem; font-weight:500; }
-    .bar-track { height:20px; background:#f0ede9; border-radius:4px; overflow:hidden; }
+    .bar-track { height:20px; background:var(--border); border-radius:4px; overflow:hidden; }
     .bar-fill { height:100%; border-radius:4px; transition:width 1.2s cubic-bezier(0.22,0.61,0.36,1); width:0; }
     .bar-val { font-size:0.8rem; font-weight:700; text-align:right; }
   </style>
