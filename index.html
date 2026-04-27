@@ -54,6 +54,7 @@
       background: var(--bg);
       border-bottom: 1px solid var(--border);
       gap: 16px;
+      position: relative;
     }
 
     .nav-brand {
@@ -492,15 +493,17 @@
     }
 
     .global-bar-search {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
       align-items: center;
       gap: 12px;
       background: #F6F2EC;
       border-radius: 10px;
       padding: 12px 18px;
-      flex: 1;
-      max-width: 650px;
-      margin-left: auto;
+      width: 650px;
+      max-width: 45%;
     }
 
     .global-bar-search svg {
