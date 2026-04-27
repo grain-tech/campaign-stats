@@ -130,11 +130,13 @@
     }
 
     .modal {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 2rem;
-      width: min(440px, 90vw);
+      background: #FFFCF6;
+      border-radius: 10px;
+      padding: 24px;
+      width: min(726px, 90vw);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
       transform: translateY(12px) scale(0.97);
       transition: transform 0.3s cubic-bezier(0.22,0.61,0.36,1);
     }
@@ -143,43 +145,71 @@
       transform: translateY(0) scale(1);
     }
 
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
     .modal-title {
-      font-family: 'Kapra Neue', 'Funkis A', sans-serif;
-      font-weight: 900;
-      font-size: 1.25rem;
-      text-transform: uppercase;
-      margin-bottom: 0.35rem;
+      font-family: 'Funkis A', sans-serif;
+      font-weight: 600;
+      font-size: 18px;
+      color: #1A1A1A;
+    }
+
+    .modal-close {
+      width: 24px;
+      height: 24px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--grey);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s;
+    }
+
+    .modal-close:hover { color: #1A1A1A; }
+    .modal-close svg { width: 14px; height: 14px; }
+
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
     }
 
     .modal-desc {
-      font-size: 0.82rem;
+      font-size: 14px;
       color: var(--grey);
-      margin-bottom: 1.25rem;
       line-height: 1.5;
     }
 
     .modal-field {
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
-      margin-bottom: 1rem;
+      gap: 12px;
     }
 
     .modal-label {
-      font-size: 0.75rem;
-      font-weight: 500;
+      font-family: 'Funkis A', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
       color: var(--grey);
     }
 
     .modal-input {
-      padding: 12px 14px;
-      border: 1px solid var(--filled-2);
-      border-radius: 8px;
+      padding: 12px 18px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
       font-family: 'Funkis A', sans-serif;
-      font-size: 0.9rem;
+      font-size: 14px;
       outline: none;
       transition: border-color 0.2s;
-      background: var(--off-white);
+      background: #FFFCF7;
     }
 
     .modal-input:focus {
@@ -187,25 +217,26 @@
     }
 
     .modal-input::placeholder {
-      color: var(--grey);
+      color: var(--grey-light);
     }
 
-    .modal-actions {
+    .modal-footer {
       display: flex;
-      gap: 0.6rem;
+      gap: 12px;
       justify-content: flex-end;
-      margin-top: 1.5rem;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
     }
 
     .modal-cancel {
-      padding: 9px 18px;
+      padding: 12px 18px;
       border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--card-bg);
+      border-radius: 10px;
+      background: #FFFCF7;
       font-family: 'Funkis A', sans-serif;
-      font-size: 0.82rem;
-      font-weight: 500;
-      color: var(--grey);
+      font-size: 14px;
+      font-weight: 600;
+      color: #1A1A1A;
       cursor: pointer;
       transition: border-color 0.2s;
     }
@@ -213,14 +244,14 @@
     .modal-cancel:hover { border-color: var(--grey); }
 
     .modal-submit {
-      padding: 9px 20px;
+      padding: 12px 18px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       background: var(--yellow);
       font-family: 'Funkis A', sans-serif;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--off-black);
+      font-size: 14px;
+      font-weight: 600;
+      color: #1A1A1A;
       cursor: pointer;
       transition: transform 0.15s, box-shadow 0.15s;
     }
@@ -777,31 +808,38 @@
   <!-- Modal -->
   <div class="modal-overlay" id="modal">
     <div class="modal">
-      <div class="modal-title">Add Website</div>
-      <p class="modal-desc">Enter the URL of the website you want to track. We'll generate a stats dashboard for it.</p>
-      <div class="modal-field">
-        <label class="modal-label">Website URL</label>
-        <input class="modal-input" id="modalUrl" type="url" placeholder="https://example.grain.com.sg" autocomplete="off" />
+      <div class="modal-header">
+        <div class="modal-title">Add website</div>
+        <button class="modal-close" id="modalClose">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 1l12 12M13 1L1 13"/></svg>
+        </button>
       </div>
-      <div class="modal-field">
-        <label class="modal-label">Campaign name</label>
-        <input class="modal-input" id="modalName" type="text" placeholder="e.g. Summer Menu Launch" autocomplete="off" />
-      </div>
-      <div class="modal-field">
-        <label class="modal-label">Campaign period</label>
-        <div class="modal-date-row">
-          <div class="modal-date-input">
-            <input class="modal-input" id="modalStart" type="date" />
-            <svg class="modal-date-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M2 6h12M5 2v4M11 2v4"/></svg>
-          </div>
-          <span class="modal-date-to">to</span>
-          <div class="modal-date-input">
-            <input class="modal-input" id="modalEnd" type="date" />
-            <svg class="modal-date-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M2 6h12M5 2v4M11 2v4"/></svg>
+      <div class="modal-body">
+        <p class="modal-desc">Enter the URL of the website you want to track. We'll generate a stats dashboard for it.</p>
+        <div class="modal-field">
+          <label class="modal-label">Website URL</label>
+          <input class="modal-input" id="modalUrl" type="url" placeholder="https://example.grain.com.sg" autocomplete="off" />
+        </div>
+        <div class="modal-field">
+          <label class="modal-label">Campaign name</label>
+          <input class="modal-input" id="modalName" type="text" placeholder="e.g. Summer Menu Launch" autocomplete="off" />
+        </div>
+        <div class="modal-field">
+          <label class="modal-label">Campaign period</label>
+          <div class="modal-date-row">
+            <div class="modal-date-input">
+              <input class="modal-input" id="modalStart" type="date" />
+              <svg class="modal-date-icon" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.78.75V4.24M10.05.75V4.24M.82 6.51H14"/><rect x=".75" y="2.32" width="13.32" height="11.68" rx="2.25"/></svg>
+            </div>
+            <span class="modal-date-to">to</span>
+            <div class="modal-date-input">
+              <input class="modal-input" id="modalEnd" type="date" />
+              <svg class="modal-date-icon" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.78.75V4.24M10.05.75V4.24M.82 6.51H14"/><rect x=".75" y="2.32" width="13.32" height="11.68" rx="2.25"/></svg>
+            </div>
           </div>
         </div>
       </div>
-      <div class="modal-actions">
+      <div class="modal-footer">
         <button class="modal-cancel" id="modalCancel">Cancel</button>
         <button class="modal-submit" id="modalSubmit" disabled>Generate Stats</button>
       </div>
@@ -996,14 +1034,17 @@
       setTimeout(() => modalUrl.focus(), 200);
     });
 
-    document.getElementById('modalCancel').addEventListener('click', () => {
+    function closeModal() {
       modal.classList.remove('open');
       modalUrl.value = '';
       modalName.value = '';
-    });
+    }
+
+    document.getElementById('modalCancel').addEventListener('click', closeModal);
+    document.getElementById('modalClose').addEventListener('click', closeModal);
 
     modal.addEventListener('click', e => {
-      if (e.target === modal) modal.classList.remove('open');
+      if (e.target === modal) closeModal();
     });
 
     function validateModal() {
