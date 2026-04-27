@@ -558,6 +558,38 @@
 
   <main class="dashboard">
 
+    <!-- Edit Modal -->
+    <div id="editOverlay" style="position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.3);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s;">
+      <div style="background:#FFFCF6;border-radius:10px;padding:24px;width:min(726px,90vw);display:flex;flex-direction:column;gap:24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:24px;border-bottom:1px solid #EAE6E1;margin:-0px -24px 0;padding:0 24px 24px;">
+          <div style="font-family:'Funkis A',sans-serif;font-weight:600;font-size:18px;">Edit website</div>
+          <button id="editClose" style="background:none;border:none;cursor:pointer;color:#9A9691;"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 1l12 12M13 1L1 13"/></svg></button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:24px;">
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <label style="font-size:14px;font-weight:600;color:#9A9691;">Website URL</label>
+            <input id="editUrl" type="url" value="https://grain-tech.github.io/missing-recipes/" style="padding:12px 18px;border:1px solid #EAE6E1;border-radius:10px;font-family:'Funkis A',sans-serif;font-size:14px;outline:none;background:#FFFCF7;" />
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <label style="font-size:14px;font-weight:600;color:#9A9691;">Campaign name</label>
+            <input id="editName" type="text" value="Missing Recipes" style="padding:12px 18px;border:1px solid #EAE6E1;border-radius:10px;font-family:'Funkis A',sans-serif;font-size:14px;outline:none;background:#FFFCF7;" />
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <label style="font-size:14px;font-weight:600;color:#9A9691;">Campaign period</label>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <input id="editStart" type="date" value="2026-04-14" style="flex:1;padding:12px 18px;border:1px solid #EAE6E1;border-radius:10px;font-family:'Funkis A',sans-serif;font-size:14px;outline:none;background:#FFFCF7;" />
+              <span style="color:#9A9691;">&mdash;</span>
+              <input id="editEnd" type="date" value="2026-04-27" style="flex:1;padding:12px 18px;border:1px solid #EAE6E1;border-radius:10px;font-family:'Funkis A',sans-serif;font-size:14px;outline:none;background:#FFFCF7;" />
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;justify-content:flex-end;padding-top:18px;border-top:1px solid #EAE6E1;margin:0 -24px;padding:18px 24px 0;">
+          <button id="editCancel" style="padding:12px 18px;border:1px solid #EAE6E1;border-radius:10px;background:#FFFCF7;font-family:'Funkis A',sans-serif;font-size:14px;font-weight:600;color:#1A1A1A;cursor:pointer;">Cancel</button>
+          <button id="editSave" style="padding:12px 18px;border:none;border-radius:10px;background:#FECC07;font-family:'Funkis A',sans-serif;font-size:14px;font-weight:600;color:#1A1A1A;cursor:pointer;">Save changes</button>
+        </div>
+      </div>
+    </div>
+
     <!-- KPIs -->
     <section class="kpi-row" id="kpiRow"></section>
 
@@ -882,6 +914,25 @@
     document.querySelectorAll('.kpi-card,.card').forEach(el=>io.observe(el));
     document.querySelectorAll('.kpi-card').forEach((c,i)=>{c.style.animationDelay=`${i*0.06}s`;});
     document.querySelectorAll('.card').forEach((c,i)=>{c.style.animationDelay=`${i*0.04}s`;});
+
+    // ─── Edit modal ───
+    const editOverlay=document.getElementById('editOverlay');
+    document.getElementById('editBtn').addEventListener('click',()=>{editOverlay.style.opacity='1';editOverlay.style.pointerEvents='auto';});
+    function closeEdit(){editOverlay.style.opacity='0';editOverlay.style.pointerEvents='none';}
+    document.getElementById('editClose').addEventListener('click',closeEdit);
+    document.getElementById('editCancel').addEventListener('click',closeEdit);
+    editOverlay.addEventListener('click',e=>{if(e.target===editOverlay)closeEdit();});
+    document.getElementById('editSave').addEventListener('click',()=>{
+      const s=document.getElementById('editStart').value;
+      const e=document.getElementById('editEnd').value;
+      if(s&&e){
+        const fmt=d=>{const dt=new Date(d);return `${dt.getDate()} ${dt.toLocaleString('en-GB',{month:'short'}).toUpperCase()} ${dt.getFullYear()}`;};
+        document.querySelector('.header-date').childNodes[0].textContent=`${fmt(s)} – ${fmt(e)} `;
+      }
+      const n=document.getElementById('editName').value;
+      if(n) document.querySelector('.header-sub').textContent=`${n} — All time overview`;
+      closeEdit();
+    });
 
     // Nav timestamp
     const navEl=document.getElementById('navUpdated');
