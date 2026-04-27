@@ -14,18 +14,20 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --black: #0d0d0d;
-      --off-black: #1a1a1a;
-      --white: #ffffff;
-      --bg: #f7f5f2;
-      --card-bg: #ffffff;
-      --yellow: #fecc07;
-      --yellow-dark: #d4a906;
-      --ink: #1a1a1a;
-      --faded: #8a8070;
-      --grey: #9a9691;
-      --grey-light: #e0dcd7;
-      --border: rgba(0,0,0,0.08);
+      --off-white: #FFFCF7;
+      --cream: #FBF7F3;
+      --filled-1: #F6F2EC;
+      --filled-2: #EAE6E1;
+      --off-black: #1A1A1A;
+      --bg: #FFFCF7;
+      --card-bg: #FBF7F3;
+      --yellow: #FECC07;
+      --yellow-text: #FFB800;
+      --custard: #FFF6DD;
+      --grey: #9A9691;
+      --grey-light: #E0DCD7;
+      --faded: #9A9691;
+      --border: #EAE6E1;
     }
 
     html { scroll-behavior: smooth; }
@@ -145,22 +147,20 @@
     }
 
     .modal-label {
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--faded);
+      color: var(--grey);
     }
 
     .modal-input {
-      padding: 10px 14px;
-      border: 1px solid var(--grey-light);
+      padding: 12px 14px;
+      border: 1px solid var(--filled-2);
       border-radius: 8px;
       font-family: 'Funkis A', sans-serif;
       font-size: 0.9rem;
       outline: none;
       transition: border-color 0.2s;
-      background: var(--bg);
+      background: var(--off-white);
     }
 
     .modal-input:focus {
@@ -168,7 +168,7 @@
     }
 
     .modal-input::placeholder {
-      color: var(--grey-light);
+      color: var(--grey);
     }
 
     .modal-actions {
@@ -287,7 +287,7 @@
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 1.75rem;
+      padding: 1.25rem;
       text-decoration: none;
       color: var(--off-black);
       display: flex;
@@ -388,6 +388,7 @@
     .card-spark {
       height: 32px;
       width: 100%;
+      margin-top: auto;
     }
 
     .card-spark polyline {
@@ -403,6 +404,7 @@
       gap: 0.75rem;
       padding-top: 1rem;
       border-top: 1px solid var(--border);
+      margin-top: auto;
     }
 
     .card-kpi { display: flex; flex-direction: column; gap: 2px; }
@@ -420,6 +422,7 @@
       text-transform: none;
       letter-spacing: 0.02em;
       color: var(--faded);
+      white-space: nowrap;
     }
 
 
@@ -438,7 +441,6 @@
   </nav>
 
   <section class="hero">
-    <p class="hero-overline">Grain Test Kitchen</p>
     <h1 class="hero-title">Campaign <span>Stats</span></h1>
     <p class="hero-sub">Track performance across all marketing campaigns. Pick one to dive in.</p>
   </section>
@@ -455,8 +457,16 @@
         <input class="modal-input" id="modalUrl" type="url" placeholder="https://example.grain.com.sg" autocomplete="off" />
       </div>
       <div class="modal-field">
-        <label class="modal-label">Campaign Name</label>
+        <label class="modal-label">Campaign name</label>
         <input class="modal-input" id="modalName" type="text" placeholder="e.g. Summer Menu Launch" autocomplete="off" />
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Campaign period</label>
+        <div style="display:flex;gap:0.5rem;align-items:center;">
+          <input class="modal-input" id="modalStart" type="date" style="flex:1" />
+          <span style="color:var(--grey);font-size:0.8rem;">to</span>
+          <input class="modal-input" id="modalEnd" type="date" style="flex:1" />
+        </div>
       </div>
       <div class="modal-actions">
         <button class="modal-cancel" id="modalCancel">Cancel</button>
@@ -606,10 +616,12 @@
     modalSubmit.addEventListener('click', () => {
       const url = modalUrl.value.trim();
       const name = modalName.value.trim();
+      const startVal = document.getElementById('modalStart').value;
+      const endVal = document.getElementById('modalEnd').value;
       if (!url || !name) return;
 
-      const now = new Date();
-      const date = `${now.getDate()} ${now.toLocaleString('en-GB',{month:'short'})} ${now.getFullYear()}`;
+      const fmt = d => { const dt=new Date(d); return `${dt.getDate()} ${dt.toLocaleString('en-GB',{month:'short'})} ${dt.getFullYear()}`; };
+      const date = (startVal && endVal) ? `${fmt(startVal)} – ${fmt(endVal)}` : fmt(new Date());
 
       const saved = JSON.parse(localStorage.getItem('customCampaigns') || '[]');
       saved.push({ url, name, date });

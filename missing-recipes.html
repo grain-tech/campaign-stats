@@ -14,22 +14,22 @@
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
     :root {
-      --bg: #f5f3f0;
-      --card: #ffffff;
-      --border: #e5e2dd;
-      --text: #1a1a1a;
-      --text-secondary: #6b6560;
-      --text-muted: #9a9590;
-      --yellow: #f2c744;
-      --yellow-bg: #fef9e7;
-      --green: #4caf50;
-      --green-light: #81c784;
-      --green-dark: #2e7d32;
-      --red: #e53935;
+      --bg: #FFFCF7;
+      --card: #FBF7F3;
+      --border: #EAE6E1;
+      --text: #1A1A1A;
+      --text-secondary: #9A9691;
+      --text-muted: #9A9691;
+      --yellow: #FECC07;
+      --yellow-bg: #FFF6DD;
+      --green: #31AA88;
+      --green-light: #8CD9C3;
+      --green-dark: #31AA88;
+      --red: #FF2E2E;
       --orange: #fb8c00;
       --purple: #ab47bc;
       --blue: #42a5f5;
-      --grey-line: #c5c0ba;
+      --grey-line: #E0DCD7;
       --radius: 8px;
     }
 
@@ -141,8 +141,107 @@
     }
 
     .btn:hover { border-color: var(--text-muted); }
-
     .btn svg { width: 16px; height: 16px; }
+
+    /* ─── DATE PICKER ─── */
+    .date-picker-wrap { position: relative; }
+
+    .date-picker {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      z-index: 50;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      width: 320px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-4px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .date-picker.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+    .dp-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .dp-month {
+      font-family: 'Funkis A', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .dp-nav {
+      background: none; border: none; cursor: pointer;
+      color: var(--text); padding: 4px;
+      font-size: 1.1rem; line-height: 1;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+
+    .dp-nav:hover { background: var(--border); }
+
+    .dp-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      text-align: center;
+    }
+
+    .dp-day-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text);
+      padding: 8px 0;
+    }
+
+    .dp-day {
+      font-size: 0.85rem;
+      padding: 8px 0;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text);
+      transition: background 0.15s;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Funkis A', sans-serif;
+    }
+
+    .dp-day:hover { background: var(--border); }
+    .dp-day.today { background: var(--border); font-weight: 700; }
+    .dp-day.selected { background: var(--yellow); font-weight: 700; }
+    .dp-day.other { color: var(--grey-line); }
+    .dp-day.future { color: var(--grey-line); cursor: default; }
+    .dp-day.future:hover { background: none; }
+
+    .dp-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .dp-clear {
+      background: none; border: none;
+      font-family: 'Funkis A', sans-serif;
+      font-size: 0.8rem; color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .dp-clear:hover { color: var(--text); }
 
     /* ─── DASHBOARD ─── */
     .dashboard {
@@ -399,10 +498,23 @@
       <div class="header-sub">Missing Recipes &mdash; All time overview</div>
     </div>
     <div class="header-actions">
-      <button class="btn">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M2 6h12M5 2v4M11 2v4"/></svg>
-        Pick a date
-      </button>
+      <div class="date-picker-wrap">
+        <button class="btn" id="dateBtn">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M2 6h12M5 2v4M11 2v4"/></svg>
+          Pick a date
+        </button>
+        <div class="date-picker" id="datePicker">
+          <div class="dp-header">
+            <button class="dp-nav" id="dpPrev">&#8249;</button>
+            <span class="dp-month" id="dpMonth"></span>
+            <button class="dp-nav" id="dpNext">&#8250;</button>
+          </div>
+          <div class="dp-grid" id="dpGrid"></div>
+          <div class="dp-footer">
+            <button class="dp-clear" id="dpClear">Clear</button>
+          </div>
+        </div>
+      </div>
       <a class="btn" href="#">View campaign</a>
     </div>
   </header>
@@ -691,8 +803,48 @@
     document.querySelectorAll('.card').forEach((c,i)=>{c.style.animationDelay=`${i*0.04}s`;});
 
     // Nav timestamp
-    const el=document.getElementById('navUpdated');
-    if(el) el.textContent='Updated '+new Date().toLocaleTimeString('en-SG',{hour:'2-digit',minute:'2-digit'});
+    const navEl=document.getElementById('navUpdated');
+    if(navEl) navEl.textContent='Updated '+new Date().toLocaleTimeString('en-SG',{hour:'2-digit',minute:'2-digit'});
+
+    // ─── DATE PICKER ───
+    (function(){
+      const btn=document.getElementById('dateBtn');
+      const picker=document.getElementById('datePicker');
+      if(!btn||!picker)return;
+      let cur=new Date();const today=new Date();
+      const grid=document.getElementById('dpGrid');
+      const monthEl=document.getElementById('dpMonth');
+
+      function render(){
+        const y=cur.getFullYear(),m=cur.getMonth();
+        monthEl.textContent=cur.toLocaleString('en-GB',{month:'long',year:'numeric'});
+        grid.innerHTML='';
+        ['S','M','T','W','T','F','S'].forEach(d=>{grid.innerHTML+=`<div class="dp-day-label">${d}</div>`;});
+        const first=new Date(y,m,1).getDay();
+        const days=new Date(y,m+1,0).getDate();
+        const prevDays=new Date(y,m,0).getDate();
+        for(let i=first-1;i>=0;i--){const d=prevDays-i;grid.innerHTML+=`<button class="dp-day other">${d}</button>`;}
+        for(let d=1;d<=days;d++){
+          const isToday=d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear();
+          const isFuture=new Date(y,m,d)>today;
+          grid.innerHTML+=`<button class="dp-day${isToday?' today':''}${isFuture?' future':''}">${d}</button>`;
+        }
+        const rem=(first+days)%7;if(rem>0)for(let d=1;d<=7-rem;d++){grid.innerHTML+=`<button class="dp-day other">${d}</button>`;}
+        grid.querySelectorAll('.dp-day:not(.other):not(.future)').forEach(b=>{
+          b.addEventListener('click',()=>{
+            const sel=new Date(y,m,+b.textContent);
+            document.querySelector('.header-date').textContent=sel.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+            picker.classList.remove('open');
+          });
+        });
+      }
+
+      btn.addEventListener('click',e=>{e.stopPropagation();picker.classList.toggle('open');render();});
+      document.getElementById('dpPrev').addEventListener('click',e=>{e.stopPropagation();cur.setMonth(cur.getMonth()-1);render();});
+      document.getElementById('dpNext').addEventListener('click',e=>{e.stopPropagation();cur.setMonth(cur.getMonth()+1);render();});
+      document.getElementById('dpClear').addEventListener('click',e=>{e.stopPropagation();document.querySelector('.header-date').textContent='All time';picker.classList.remove('open');});
+      document.addEventListener('click',e=>{if(!picker.contains(e.target)&&e.target!==btn)picker.classList.remove('open');});
+    })();
   </script>
 </body>
 </html>
