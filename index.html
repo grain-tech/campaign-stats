@@ -312,6 +312,7 @@
     .modal-date-input .modal-input {
       width: 100%;
       padding-right: 40px;
+      cursor: pointer;
     }
 
     .modal-date-icon {
@@ -330,6 +331,25 @@
       color: var(--grey);
       flex-shrink: 0;
     }
+
+    /* Modal date picker popover */
+    .modal-dp {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      z-index: 60;
+      background: #FBF7F3;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      width: 280px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-4px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .modal-dp.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
     .modal-submit:disabled {
       opacity: 0.5;
@@ -878,13 +898,15 @@
           <label class="modal-label">Campaign period</label>
           <div class="modal-date-row">
             <div class="modal-date-input">
-              <input class="modal-input" id="modalStart" type="date" />
+              <input class="modal-input" id="modalStart" type="text" placeholder="Select date" readonly />
               <svg class="modal-date-icon" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.78.75V4.24M10.05.75V4.24M.82 6.51H14"/><rect x=".75" y="2.32" width="13.32" height="11.68" rx="2.25"/></svg>
+              <input type="hidden" id="modalStartVal" />
             </div>
-            <span class="modal-date-to">to</span>
+            <span class="modal-date-to">&mdash;</span>
             <div class="modal-date-input">
-              <input class="modal-input" id="modalEnd" type="date" />
+              <input class="modal-input" id="modalEnd" type="text" placeholder="Select date" readonly />
               <svg class="modal-date-icon" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.78.75V4.24M10.05.75V4.24M.82 6.51H14"/><rect x=".75" y="2.32" width="13.32" height="11.68" rx="2.25"/></svg>
+              <input type="hidden" id="modalEndVal" />
             </div>
           </div>
         </div>
@@ -1143,6 +1165,52 @@
     modalUrl.addEventListener('input', validateModal);
     modalName.addEventListener('input', validateModal);
 
+    // ─── Modal date pickers ───
+    function createModalDatePicker(inputEl, hiddenEl) {
+      const wrap = inputEl.closest('.modal-date-input');
+      const pop = document.createElement('div');
+      pop.className = 'modal-dp';
+      pop.innerHTML = `<div class="dp-head"><button class="dp-nav-btn mdp-prev">&#8249;</button><span class="dp-month mdp-month"></span><button class="dp-nav-btn mdp-next">&#8250;</button></div><div class="dp-grid mdp-grid"></div><div class="dp-foot"><button class="dp-clear mdp-clear">Clear</button></div>`;
+      wrap.appendChild(pop);
+      let cur = new Date();
+      const today = new Date();
+      const fmt = d => `${d.getDate()} ${d.toLocaleString('en-GB',{month:'short'})} ${d.getFullYear()}`;
+
+      function render() {
+        const y=cur.getFullYear(),m=cur.getMonth();
+        pop.querySelector('.mdp-month').textContent=cur.toLocaleString('en-GB',{month:'long',year:'numeric'});
+        const grid=pop.querySelector('.mdp-grid');
+        grid.innerHTML='';
+        ['S','M','T','W','T','F','S'].forEach(d=>{grid.innerHTML+=`<div class="dp-dow">${d}</div>`;});
+        const first=new Date(y,m,1).getDay();
+        const days=new Date(y,m+1,0).getDate();
+        const prevDays=new Date(y,m,0).getDate();
+        for(let i=first-1;i>=0;i--)grid.innerHTML+=`<button class="dp-cell other">${prevDays-i}</button>`;
+        for(let d=1;d<=days;d++){
+          const isToday=d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear();
+          grid.innerHTML+=`<button class="dp-cell${isToday?' today':''}" data-day="${d}">${d}</button>`;
+        }
+        const rem=(first+days)%7;if(rem>0)for(let d=1;d<=7-rem;d++)grid.innerHTML+=`<button class="dp-cell other">${d}</button>`;
+        grid.querySelectorAll('.dp-cell[data-day]').forEach(b=>{
+          b.addEventListener('click',e=>{
+            e.stopPropagation();
+            const sel=new Date(y,m,+b.dataset.day);
+            inputEl.value=fmt(sel);
+            hiddenEl.value=sel.toISOString().split('T')[0];
+            pop.classList.remove('open');
+          });
+        });
+      }
+
+      inputEl.addEventListener('click',e=>{e.stopPropagation();document.querySelectorAll('.modal-dp.open').forEach(p=>p.classList.remove('open'));pop.classList.toggle('open');render();});
+      pop.querySelector('.mdp-prev').addEventListener('click',e=>{e.stopPropagation();cur.setMonth(cur.getMonth()-1);render();});
+      pop.querySelector('.mdp-next').addEventListener('click',e=>{e.stopPropagation();cur.setMonth(cur.getMonth()+1);render();});
+      pop.querySelector('.mdp-clear').addEventListener('click',e=>{e.stopPropagation();inputEl.value='';hiddenEl.value='';pop.classList.remove('open');});
+      document.addEventListener('click',e=>{if(!pop.contains(e.target)&&e.target!==inputEl)pop.classList.remove('open');});
+    }
+    createModalDatePicker(document.getElementById('modalStart'), document.getElementById('modalStartVal'));
+    createModalDatePicker(document.getElementById('modalEnd'), document.getElementById('modalEndVal'));
+
     modalSubmit.addEventListener('click', () => {
       const url = modalUrl.value.trim();
       const name = modalName.value.trim();
@@ -1150,8 +1218,7 @@
       const endVal = document.getElementById('modalEnd').value;
       if (!url || !name) return;
 
-      const fmt = d => { const dt=new Date(d); return `${dt.getDate()} ${dt.toLocaleString('en-GB',{month:'short'})} ${dt.getFullYear()}`; };
-      const date = (startVal && endVal) ? `${fmt(startVal)} – ${fmt(endVal)}` : fmt(new Date());
+      const date = (startVal && endVal) ? `${startVal} – ${endVal}` : new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
 
       const saved = JSON.parse(localStorage.getItem('customCampaigns') || '[]');
       saved.push({ url, name, date });
