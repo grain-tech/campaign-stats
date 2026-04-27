@@ -496,8 +496,8 @@
       position: absolute;
       top: 0.75rem;
       right: 0.75rem;
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       border: none;
       background: transparent;
@@ -515,7 +515,109 @@
       color: #FF2E2E;
     }
 
-    .card-delete svg { width: 14px; height: 14px; }
+    .card-delete svg { width: 16px; height: 16px; }
+
+    /* ─── DELETE DIALOG ─── */
+    .delete-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .delete-overlay.open { opacity: 1; pointer-events: auto; }
+
+    .delete-dialog {
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 24px;
+      width: 404px;
+      max-width: 90vw;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 24px;
+      transform: translateY(8px) scale(0.97);
+      transition: transform 0.25s cubic-bezier(0.22,0.61,0.36,1);
+    }
+
+    .delete-overlay.open .delete-dialog { transform: translateY(0) scale(1); }
+
+    .delete-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .delete-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 24px;
+      background: #FFECEC;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .delete-icon svg { width: 24px; height: 24px; color: #FF2E2E; }
+
+    .delete-title {
+      font-family: 'Funkis A', sans-serif;
+      font-weight: 600;
+      font-size: 18px;
+      color: var(--off-black);
+      text-align: center;
+    }
+
+    .delete-desc {
+      font-family: 'Funkis A', sans-serif;
+      font-size: 14px;
+      color: var(--off-black);
+      text-align: center;
+      max-width: 291px;
+      line-height: 1.5;
+    }
+
+    .delete-actions {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .delete-actions button {
+      flex: 1;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-family: 'Funkis A', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .delete-actions button:hover { opacity: 0.85; }
+
+    .delete-cancel-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--off-black);
+    }
+
+    .delete-confirm-btn {
+      background: #FFECEC;
+      border: none;
+      color: #FF2E2E;
+    }
 
     /* ─── GLOBAL BAR (inline in nav) ─── */
     .global-bar-count {
@@ -611,6 +713,23 @@
 
   <section class="campaigns" id="campaigns"></section>
 
+  <!-- Delete Dialog -->
+  <div class="delete-overlay" id="deleteOverlay">
+    <div class="delete-dialog">
+      <div class="delete-body">
+        <div class="delete-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6"/></svg>
+        </div>
+        <div class="delete-title">Delete web statistics?</div>
+        <div class="delete-desc">All the data will be gone for good. You won't be able to get it back.</div>
+      </div>
+      <div class="delete-actions">
+        <button class="delete-cancel-btn" id="deleteCancel">Cancel</button>
+        <button class="delete-confirm-btn" id="deleteConfirm">Delete</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal -->
   <div class="modal-overlay" id="modal">
     <div class="modal">
@@ -697,7 +816,9 @@
       else card.href = `${c.slug}.html`;
       card.style.animationDelay = `${idx * 0.12}s`;
 
+      const binSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6"/></svg>`;
       card.innerHTML = `
+        <button class="card-delete" data-type="builtin" data-slug="${c.slug}" title="Delete">${binSvg}</button>
         <div class="card-header">
           <div class="card-name">${c.name}</div>
           <div class="card-date-row">
@@ -729,8 +850,8 @@
 
         const spark = Array.from({length:14}, () => Math.floor(Math.random()*40)+10);
         card.innerHTML = `
-          <button class="card-delete" data-idx="${idx}" title="Delete campaign">
-            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg>
+          <button class="card-delete" data-type="custom" data-idx="${idx}" title="Delete">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6"/></svg>
           </button>
           <div class="card-header">
             <div class="card-name">${c.name}</div>
@@ -749,15 +870,6 @@
             <div class="card-kpi"><span class="card-kpi-value">—</span><span class="card-kpi-label">Conversions</span></div>
           </div>
         `;
-
-        card.querySelector('.card-delete').addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const saved = JSON.parse(localStorage.getItem('customCampaigns') || '[]');
-          saved.splice(idx, 1);
-          localStorage.setItem('customCampaigns', JSON.stringify(saved));
-          card.remove();
-        });
 
         grid.appendChild(card);
       });
@@ -794,6 +906,46 @@
     const modalUrl = document.getElementById('modalUrl');
     const modalName = document.getElementById('modalName');
     const modalSubmit = document.getElementById('modalSubmit');
+
+    // ─── Delete dialog logic ───
+    let pendingDeleteCard = null;
+    const deleteOverlay = document.getElementById('deleteOverlay');
+
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.card-delete');
+      if (!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      pendingDeleteCard = btn.closest('.campaign-card');
+      deleteOverlay.classList.add('open');
+    });
+
+    document.getElementById('deleteCancel').addEventListener('click', () => {
+      deleteOverlay.classList.remove('open');
+      pendingDeleteCard = null;
+    });
+
+    deleteOverlay.addEventListener('click', (e) => {
+      if (e.target === deleteOverlay) { deleteOverlay.classList.remove('open'); pendingDeleteCard = null; }
+    });
+
+    document.getElementById('deleteConfirm').addEventListener('click', () => {
+      if (!pendingDeleteCard) return;
+      const btn = pendingDeleteCard.querySelector('.card-delete');
+      if (btn.dataset.type === 'custom') {
+        const idx = parseInt(btn.dataset.idx);
+        const saved = JSON.parse(localStorage.getItem('customCampaigns') || '[]');
+        saved.splice(idx, 1);
+        localStorage.setItem('customCampaigns', JSON.stringify(saved));
+      }
+      pendingDeleteCard.remove();
+      deleteOverlay.classList.remove('open');
+      pendingDeleteCard = null;
+      // Update count
+      const remaining = document.querySelectorAll('.campaign-card').length;
+      document.getElementById('campaignCount').textContent = remaining;
+      document.getElementById('totalCount').textContent = `Total websites (${remaining})`;
+    });
 
     document.getElementById('addWebsiteBtn').addEventListener('click', () => {
       modal.classList.add('open');
