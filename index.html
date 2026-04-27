@@ -171,6 +171,58 @@
     .dp-clear { background: none; border: none; font-family: 'Funkis A', sans-serif; font-size: 13px; color: var(--text-muted); cursor: pointer; }
     .dp-clear:hover { color: var(--text); }
 
+    /* ─── INLINE DATE EDIT ─── */
+    .card-date {
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .card-date:hover { color: var(--off-black); text-decoration: underline; text-underline-offset: 2px; }
+
+    .date-edit-popover {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 50;
+      background: #FBF7F3;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      width: 320px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-4px);
+      transition: opacity 0.2s, transform 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .date-edit-popover.open { opacity: 1; pointer-events: auto; transform: translateY(4px); }
+    .date-edit-row { display: flex; align-items: center; gap: 8px; }
+    .date-edit-input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: 'Funkis A', sans-serif;
+      font-size: 13px;
+      background: #FFFCF7;
+      outline: none;
+    }
+    .date-edit-input:focus { border-color: var(--yellow); }
+    .date-edit-save {
+      padding: 8px 16px;
+      background: var(--yellow);
+      border: none;
+      border-radius: 8px;
+      font-family: 'Funkis A', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1A1A1A;
+      cursor: pointer;
+      align-self: flex-end;
+    }
+
     /* ─── MODAL ─── */
     .modal-overlay {
       position: fixed;
@@ -1010,9 +1062,18 @@
         <button class="card-delete" data-type="builtin" data-slug="${c.slug}" title="Delete">${binSvg}</button>
         <div class="card-header">
           <div class="card-name">${c.name}</div>
-          <div class="card-date-row">
-            <span class="card-date">${c.date}</span>
+          <div class="card-date-row" style="position:relative">
+            <span class="card-date" data-editable="true">${c.date}</span>
             <span class="card-status ${c.status}">${c.status === 'live' ? 'Live' : 'Ended'}</span>
+            <div class="date-edit-popover">
+              <div style="font-size:13px;font-weight:600;color:#1A1A1A">Edit date range</div>
+              <div class="date-edit-row">
+                <input class="date-edit-input" type="date" data-role="start" />
+                <span style="color:#9A9691;font-size:13px">&mdash;</span>
+                <input class="date-edit-input" type="date" data-role="end" />
+              </div>
+              <button class="date-edit-save">Save</button>
+            </div>
           </div>
         </div>
         <div class="card-desc">${c.desc}</div>
@@ -1064,6 +1125,35 @@
       });
     }
     renderCustomCampaigns();
+
+    // ─── Inline date editing ───
+    document.querySelectorAll('.card-date[data-editable]').forEach(dateEl => {
+      const popover = dateEl.closest('.card-date-row').querySelector('.date-edit-popover');
+      const saveBtn = popover.querySelector('.date-edit-save');
+      const startInput = popover.querySelector('[data-role="start"]');
+      const endInput = popover.querySelector('[data-role="end"]');
+
+      dateEl.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        document.querySelectorAll('.date-edit-popover.open').forEach(p => p.classList.remove('open'));
+        popover.classList.toggle('open');
+      });
+
+      saveBtn.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (startInput.value && endInput.value) {
+          const fmt = d => { const dt=new Date(d); return `${dt.getDate()} ${dt.toLocaleString('en-GB',{month:'short'})} ${dt.getFullYear()}`; };
+          dateEl.textContent = `${fmt(startInput.value)} – ${fmt(endInput.value)}`;
+        }
+        popover.classList.remove('open');
+      });
+
+      document.addEventListener('click', e => {
+        if (!popover.contains(e.target) && e.target !== dateEl) popover.classList.remove('open');
+      });
+    });
 
     // ─── Tab filtering ───
     document.querySelectorAll('.header-tab').forEach(tab => {

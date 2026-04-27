@@ -46,7 +46,7 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      padding: 0.9rem 2rem;
+      padding: 12px 24px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -523,8 +523,14 @@
 
   <header class="page-header">
     <div>
-      <div class="header-date">27 Apr 2026</div>
-      <div class="header-sub">Missing Recipes &mdash; All time overview</div>
+      <div class="header-date">
+        27 Apr 2026
+        <svg style="width:18px;height:18px;vertical-align:middle;margin-left:6px;color:#9A9691" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.78.75V4.24M10.05.75V4.24M.82 6.51H14"/><rect x=".75" y="2.32" width="13.32" height="11.68" rx="2.25"/></svg>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:12px;margin-top:2px;">
+        <div class="header-sub">Missing Recipes &mdash; All time overview</div>
+        <a href="https://grain-tech.github.io/missing-recipes/" target="_blank" style="font-size:0.75rem;color:#9A9691;margin-left:auto;text-decoration:underline;text-underline-offset:2px;">grain-tech.github.io/missing-recipes</a>
+      </div>
     </div>
     <div class="header-actions">
       <div class="date-picker-wrap">
