@@ -804,8 +804,14 @@
           <div class="chart-tooltip-row"><span class="chart-tooltip-dot" style="background:var(--yellow)"></span>Submissions: ${DAILY_SUBS[idx]}</div>
           <div class="chart-tooltip-row"><span class="chart-tooltip-dot" style="background:var(--green)"></span>Matched: ${DAILY_MATCH[idx]}</div>`;
         tooltip.classList.add('show');
-        tooltip.style.left=`${rect.left+cx*sx+12}px`;
-        tooltip.style.top=`${rect.top+y(DAILY_VIEWS[idx])*(rect.height/200)-10}px`;
+        var tipLeft=rect.left+cx*sx+12;
+        var tipTop=rect.top+y(DAILY_VIEWS[idx])*(rect.height/200)-10;
+        // Clamp: flip left if tooltip overflows card right edge
+        if(tipLeft+tooltip.offsetWidth>rect.right-4) tipLeft=rect.left+cx*sx-tooltip.offsetWidth-12;
+        // Clamp: don't go above card
+        if(tipTop<rect.top) tipTop=rect.top+4;
+        tooltip.style.left=tipLeft+'px';
+        tooltip.style.top=tipTop+'px';
       });
       hoverRect.addEventListener('mouseleave',()=>{hoverLine.setAttribute('opacity','0');tooltip.classList.remove('show');});
     })();
